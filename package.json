@@ -1,0 +1,120 @@
+{
+  "name": "unplugin-build-stamp",
+  "type": "module",
+  "version": "0.0.1",
+  "packageManager": "pnpm@10.15.1",
+  "description": "Inject git hash, package version and build time into your app as a constant, powered by unplugin",
+  "author": "imba97",
+  "license": "MIT",
+  "homepage": "https://github.com/imba97/unplugin-build-stamp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imba97/unplugin-build-stamp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/imba97/unplugin-build-stamp/issues"
+  },
+  "keywords": [
+    "unplugin",
+    "vite",
+    "rollup",
+    "webpack",
+    "git",
+    "hash",
+    "version",
+    "build-info",
+    "define"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.mts"
+    },
+    "./vite": {
+      "types": "./dist/frameworks/vite.d.mts",
+      "import": "./dist/frameworks/vite.mjs",
+      "require": "./dist/frameworks/vite.cjs"
+    },
+    "./rollup": {
+      "types": "./dist/frameworks/rollup.d.mts",
+      "import": "./dist/frameworks/rollup.mjs",
+      "require": "./dist/frameworks/rollup.cjs"
+    },
+    "./rolldown": {
+      "types": "./dist/frameworks/rolldown.d.mts",
+      "import": "./dist/frameworks/rolldown.mjs",
+      "require": "./dist/frameworks/rolldown.cjs"
+    },
+    "./webpack": {
+      "types": "./dist/frameworks/webpack.d.mts",
+      "import": "./dist/frameworks/webpack.mjs",
+      "require": "./dist/frameworks/webpack.cjs"
+    },
+    "./rspack": {
+      "types": "./dist/frameworks/rspack.d.mts",
+      "import": "./dist/frameworks/rspack.mjs",
+      "require": "./dist/frameworks/rspack.cjs"
+    },
+    "./rsbuild": {
+      "types": "./dist/frameworks/rsbuild.d.mts",
+      "import": "./dist/frameworks/rsbuild.mjs",
+      "require": "./dist/frameworks/rsbuild.cjs"
+    },
+    "./esbuild": {
+      "types": "./dist/frameworks/esbuild.d.mts",
+      "import": "./dist/frameworks/esbuild.mjs",
+      "require": "./dist/frameworks/esbuild.cjs"
+    },
+    "./farm": {
+      "types": "./dist/frameworks/farm.d.mts",
+      "import": "./dist/frameworks/farm.mjs",
+      "require": "./dist/frameworks/farm.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": "^20.0.0 || >=22.0.0"
+  },
+  "scripts": {
+    "prepare": "simple-git-hooks",
+    "stub": "unbuild --stub",
+    "build": "unbuild",
+    "dev": "unbuild --stub",
+    "test": "vitest --run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --cache",
+    "release": "bumpp"
+  },
+  "peerDependencies": {
+    "unplugin": "^2.0.0 || ^3.0.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^10.0.0",
+    "@types/node": "^24.3.1",
+    "bumpp": "^10.2.3",
+    "eslint": "^10.14.0",
+    "nano-staged": "^1.0.2",
+    "simple-git-hooks": "^2.14.0",
+    "typescript": "^6.0.3",
+    "unbuild": "^3.6.1",
+    "unplugin": "^3.7.0",
+    "vitest": "^5.0.5"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm nano-staged"
+  },
+  "nano-staged": {
+    "*": "eslint --cache --fix"
+  }
+}
