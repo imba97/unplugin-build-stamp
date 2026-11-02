@@ -1,7 +1,7 @@
 {
   "name": "unplugin-build-stamp",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "packageManager": "pnpm@12.16.1",
   "description": "Inject git hash, package version and build time into your app as a constant, powered by unplugin",
   "author": "imba97",
