@@ -63,6 +63,41 @@ import buildStamp from 'unplugin-build-stamp/rspack' // 或 /rsbuild /esbuild /f
 
 > 也可以用 `<pkg>.raw(options, meta)` 自行接入其他构建器。
 
+### Vite 与 Nitro 共用
+
+前端 Vite 和使用 Vite 构建的 Nitro 服务可以使用同一个 Vite 插件：
+
+```ts
+import buildStamp from 'unplugin-build-stamp/vite'
+
+export default defineConfig({
+  plugins: [
+    buildStamp(),
+    nitro()
+  ]
+})
+```
+
+业务代码可以继续使用全局常量，也可以显式导入虚拟模块：
+
+```ts
+import { buildStamp } from 'virtual:build-stamp'
+```
+
+如果项目直接把插件放进 Nitro 的 `buildPlugins`，使用对应的适配入口：
+
+```ts
+import buildStamp from 'unplugin-build-stamp/nitro'
+
+export default defineNitroConfig({
+  buildPlugins: [
+    buildStamp()
+  ]
+})
+```
+
+两种入口共用同一份指纹解析和 `BUILD_STAMP` 环境变量优先级。
+
 ## What you get
 
 注入后的全局常量默认叫 `__BUILD_STAMP__`：
@@ -100,6 +135,8 @@ const version: string = __BUILD_STAMP__.version
 ```ts
 import type { BuildStamp, BuildStampOptions } from 'unplugin-build-stamp/client'
 ```
+
+`virtual:build-stamp` 默认也提供类型声明；如果自定义了 `moduleId`，需要在业务侧补充对应的模块声明。
 
 ## Options
 

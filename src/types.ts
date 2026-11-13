@@ -40,6 +40,12 @@ export interface BuildStampOptions {
    */
   name?: string
   /**
+   * 导出的虚拟模块 id。
+   *
+   * @default 'virtual:build-stamp'
+   */
+  moduleId?: string
+  /**
    * 是否在构建日志中打印最终指纹。
    *
    * @default true

@@ -206,6 +206,15 @@ describe('unplugin transform', () => {
     expect(plugin.transform('export const a = 1', '/app/src/a.ts')).toBeNull()
   })
 
+  it('提供虚拟模块导出同一份指纹', () => {
+    const resolved = plugin.resolveId('virtual:build-stamp')
+    expect(resolved).toBe('\0virtual:build-stamp')
+
+    const loaded = plugin.load(resolved)
+    expect(loaded).toContain('export { buildStamp }')
+    expect(loaded).toContain('"name":"plugin-app"')
+  })
+
   it('跳过 node_modules', () => {
     const id = '/app/node_modules/foo/index.js'
     expect(plugin.transformInclude(id)).toBe(false)

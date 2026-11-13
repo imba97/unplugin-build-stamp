@@ -14,4 +14,10 @@ declare global {
   const __BUILD_STAMP__: BuildStamp
 }
 
+// @ts-expect-error virtual:build-stamp is provided by the build plugin
+declare module 'virtual:build-stamp' {
+  const buildStamp: BuildStamp
+  export { buildStamp, buildStamp as default }
+}
+
 export type { BuildStamp, BuildStampOptions } from './types'

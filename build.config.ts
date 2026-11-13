@@ -12,6 +12,7 @@ export default defineBuildConfig({
     'src/frameworks/rsbuild',
     'src/frameworks/esbuild',
     'src/frameworks/farm',
+    'src/frameworks/nitro',
   ],
   externals: ['unplugin'],
   rollup: {

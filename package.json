@@ -75,6 +75,11 @@
       "import": "./dist/frameworks/farm.mjs",
       "require": "./dist/frameworks/farm.cjs"
     },
+    "./nitro": {
+      "types": "./dist/frameworks/nitro.d.mts",
+      "import": "./dist/frameworks/nitro.mjs",
+      "require": "./dist/frameworks/nitro.cjs"
+    },
     "./package.json": "./package.json"
   },
   "main": "dist/index.cjs",

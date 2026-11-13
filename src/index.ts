@@ -7,6 +7,7 @@ import './client'
 
 const SCOPE = '[build-stamp]'
 const DEFAULT_NAME = '__BUILD_STAMP__'
+const DEFAULT_MODULE_ID = 'virtual:build-stamp'
 
 const toPosix = (id: string) => id.replace(/\\/g, '/')
 
@@ -32,6 +33,10 @@ function isDefaultIncluded(id: string): boolean {
 export const unpluginFactory: UnpluginFactory<BuildStampOptions | undefined, false> = (rawOptions) => {
   const options = rawOptions ?? {}
   const name = options.name ?? DEFAULT_NAME
+  const moduleId = options.moduleId ?? DEFAULT_MODULE_ID
+  const resolvedModuleId = moduleId.startsWith('\0')
+    ? moduleId
+    : `\0${moduleId}`
   const customInclude = options.include?.map(toPosix)
   const shouldLog = options.log ?? true
 
@@ -50,6 +55,16 @@ export const unpluginFactory: UnpluginFactory<BuildStampOptions | undefined, fal
   return {
     name: 'unplugin-build-stamp',
     enforce: 'pre',
+    resolveId(source) {
+      if (source === moduleId || source === resolvedModuleId)
+        return resolvedModuleId
+      return null
+    },
+    load(id) {
+      if (id !== resolvedModuleId)
+        return null
+      return `const buildStamp = ${literal}\nexport { buildStamp }\nexport default buildStamp\n`
+    },
     buildStart() {
       if (!shouldLog)
         return
