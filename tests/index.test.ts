@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { unplugin } from '../src'
 import { createBuildStamp } from '../src/core/stamp'
 
@@ -11,15 +11,77 @@ const now = () => FIXED_TIME
 
 describe('createBuildStamp', () => {
   const dirs: string[] = []
+  const originalEnv = { ...process.env }
+  const restoreEnv = () => {
+    for (const key of Object.keys(process.env)) {
+      if (!(key in originalEnv))
+        delete process.env[key]
+    }
+    for (const [key, value] of Object.entries(originalEnv)) {
+      if (value === undefined)
+        delete process.env[key]
+      else
+        process.env[key] = value
+    }
+  }
   const makeTmp = () => {
     const dir = mkdtempSync(join(tmpdir(), 'build-stamp-'))
     dirs.push(dir)
     return dir
   }
 
+  beforeEach(restoreEnv)
+
   afterAll(() => {
+    restoreEnv()
     for (const dir of dirs)
       rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('优先读取 BUILD_STAMP，并支持 buildHash 别名', () => {
+    const dir = makeTmp()
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'env-app', version: '1.0.0' }))
+    process.env.BUILD_HASH = 'legacy-hash'
+    process.env.BUILD_BRANCH = 'legacy-branch'
+    process.env.BUILD_TIME = '2026-01-01T00:00:00.000Z'
+    process.env.BUILD_DIRTY = 'true'
+    process.env.BUILD_STAMP = JSON.stringify({
+      buildHash: '0123456789abcdef0123456789abcdef01234567',
+      shortHash: '0123456',
+      branch: 'main',
+      commitTime: '2026-01-02T02:03:04.000Z',
+      buildTime: '2026-01-02T03:04:05.000Z',
+      dirty: false,
+    })
+
+    const stamp = createBuildStamp({ cwd: dir, now })
+
+    expect(stamp.hash).toBe('0123456789abcdef0123456789abcdef01234567')
+    expect(stamp.shortHash).toBe('0123456')
+    expect(stamp.branch).toBe('main')
+    expect(stamp.commitTime).toBe('2026-01-02T02:03:04.000Z')
+    expect(stamp.buildTime).toBe('2026-01-02T03:04:05.000Z')
+    expect(stamp.dirty).toBe(false)
+  })
+
+  it('无效 BUILD_STAMP 继续兼容旧环境变量', () => {
+    const dir = makeTmp()
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'legacy-env-app', version: '1.0.0' }))
+    process.env.BUILD_STAMP = '{invalid'
+    process.env.BUILD_HASH = 'legacy-hash'
+    process.env.BUILD_BRANCH = 'legacy-branch'
+    process.env.COMMIT_TIME = '2026-01-02T02:03:04.000Z'
+    process.env.BUILD_TIME = '2026-01-02T03:04:05.000Z'
+    process.env.BUILD_DIRTY = 'false'
+
+    const stamp = createBuildStamp({ cwd: dir, now })
+
+    expect(stamp.hash).toBe('legacy-hash')
+    expect(stamp.shortHash).toBe('legacy-')
+    expect(stamp.branch).toBe('legacy-branch')
+    expect(stamp.commitTime).toBe('2026-01-02T02:03:04.000Z')
+    expect(stamp.buildTime).toBe('2026-01-02T03:04:05.000Z')
+    expect(stamp.dirty).toBe(false)
   })
 
   it('读取 package.json 的 name 与 version', () => {
@@ -33,8 +95,9 @@ describe('createBuildStamp', () => {
     expect(stamp.buildTime).toBe(FIXED_TIME.toISOString())
   })
 
-  it('缺少 package.json 时使用兜底版本号', () => {
+  it('package.json 缺少字段时使用兜底版本号', () => {
     const dir = makeTmp()
+    writeFileSync(join(dir, 'package.json'), '{}')
 
     const stamp = createBuildStamp({ cwd: dir, now })
 

@@ -165,6 +165,18 @@ const stamp = createBuildStamp({
 console.log(stamp.version, stamp.shortHash)
 ```
 
+## CI 环境变量
+
+构建时可以把完整指纹作为一个 JSON 字符串传入 `BUILD_STAMP`。插件会优先读取其中的字段；未提供的字段继续按旧环境变量、git 和默认值回退。
+
+```bash
+BUILD_STAMP='{"hash":"0123456789abcdef0123456789abcdef01234567","branch":"main","commitTime":"2026-01-02T02:03:04.000Z","buildTime":"2026-01-02T03:04:05.000Z","dirty":false}' pnpm build
+```
+
+支持的 JSON 字段为 `name`、`version`、`hash`、`buildHash`、`shortHash`、`branch`、`commitTime`、`buildTime` 和 `dirty`。`buildHash` 是 `hash` 的兼容别名。
+
+旧变量仍然有效：`BUILD_HASH`、`GIT_COMMIT`、`BUILD_BRANCH`、`COMMIT_TIME`、`BUILD_TIME` 和 `BUILD_DIRTY`。`extra` 选项的显式覆盖优先级最高。
+
 ## Notes
 
 - 指纹在**一次构建开始时**计算一次，构建过程中不会变化。
